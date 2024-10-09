@@ -1,24 +1,29 @@
 #include "UsuarioService.c"
 
+
 int main() {
     int opcao;
 
-    while (1) // Loop infinito até que o usuário decida parar
+    while (1) 
     {
-        // Exibe o menu e pede a entrada do usuário
+        
         printf("\n1. Cadastrar Usuario\n");
-        printf("2. Sair\n");
+        printf("2. Fazer Login\n");
+        printf("3. Sair\n");
         printf("Escolha uma opcao: ");
         
-        scanf("%d", &opcao); // Lê a opção escolhida pelo usuário
+        scanf("%d", &opcao); 
 
         switch (opcao)
         {
             case 1:
-                CadastrarUsuario(); // Chama a função de cadastro
+                CadastrarUsuario(); 
                 break;
             case 2:
-                return 0;    
+                LoginUsuario(); 
+                break;
+            case 3:
+                return 0;
             default:
                 printf("Opcao invalida!\n");
         }
@@ -26,3 +31,5 @@ int main() {
 
     return 0;
 }
+
+

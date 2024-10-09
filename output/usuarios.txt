@@ -8,3 +8,5 @@ Luiz 555 1
 Renan 999 1
 Renan 123 1
 Renan 123 1
+renan@gmail.com renan123 0
+lucas@gmail.com 123456 0
