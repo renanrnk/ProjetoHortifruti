@@ -12,6 +12,25 @@ typedef struct {
     int isAdmin;
 } Usuario;
 
+void MascararSenha(char *senha) {
+int i = 0;
+char ch;
+
+while ((ch = getch()) != '\r') {  // Pressione Enter para finalizar
+    if (ch == '\b') {  // Se pressionar Backspace
+        if (i > 0) {
+            i--;
+            printf("\b \b");  // Apaga o último caractere na tela
+        }
+    } else {
+        senha[i++] = ch;
+        printf("*");  // Mostra o caractere como um asterisco
+    }
+}
+senha[i] = '\0';  // Termina a string com o caractere nulo
+printf("\n");
+}
+
 void CadastrarUsuario()
 {
     
@@ -41,9 +60,9 @@ void CadastrarUsuario()
         return; 
     }
     printf("Digite a senha do usuario: ");
-    scanf("%s", usuario.senha);
+    MascararSenha(usuario.senha);
     printf("Digite a senha de administrador caso voce seja admin ou digite 0 para ignorar: ");
-    scanf("%s", senhaAdmin);
+    MascararSenha(senhaAdmin);
 
 
     if (strcmp(senhaAdmin, SENHA_ADMIN) == 0) {
@@ -78,7 +97,7 @@ void LoginUsuario()
     printf("Digite seu email: ");
     scanf("%s", usuario.email);
     printf("Digite sua senha: ");
-    scanf("%s", usuario.senha);
+    MascararSenha(usuario.senha);
 
     arquivo = fopen("usuarios.txt", "r");
     if (arquivo != NULL) {
