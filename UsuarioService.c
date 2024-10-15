@@ -16,13 +16,18 @@ void MascararSenha(char *senha) {
 int i = 0;
 char ch;
 
-while ((ch = getch()) != '\r') {  // Pressione Enter para finalizar
-    if (ch == '\b') {  // Se pressionar Backspace
-        if (i > 0) {
+while ((ch = getch()) != '\r') // Pressione Enter para finalizar
+{               
+    if (ch == '\b') // Se pressionar Backspace
+    {  
+        if (i > 0) 
+        {
             i--;
             printf("\b \b");  // Apaga o último caractere na tela
         }
-    } else {
+    } 
+    else 
+    {
         senha[i++] = ch;
         printf("*");  // Mostra o caractere como um asterisco
     }
@@ -87,7 +92,7 @@ void CadastrarUsuario()
     printf("Usuario cadastrado com sucesso!\n");
 }
 
-void LoginUsuario()
+int LoginUsuario()
 {
     Usuario usuario;
     FILE *arquivo;
@@ -105,7 +110,7 @@ void LoginUsuario()
             if (strcmp(emailExistente, usuario.email) == 0 && strcmp(senhaExistente, usuario.senha) == 0) {
                 printf("Logado com Sucesso!\n");
                 fclose(arquivo);
-                return; 
+                return 1;
             }
         }
         printf("Email ou senha incorretos.\n");
@@ -113,4 +118,5 @@ void LoginUsuario()
     } else {
         printf("Erro ao abrir o arquivo de usuarios.\n");
     }
+    return 0;
 }
