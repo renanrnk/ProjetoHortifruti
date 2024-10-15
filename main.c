@@ -3,20 +3,22 @@
 #include "TelaService.c"
 
 int main() {
-    int opcao;
-    int opcaoLogado;
+    int opcao, opcaoLogado, tipoUsuario;
 
     while (1) {
-        TelaLogin();       
-        scanf("%d", &opcao); 
+        TelaLogin();
+        scanf("%d", &opcao);
 
         switch (opcao) {
             case 1:
-                CadastrarProduto(); 
+                CadastrarUsuario();  // Cadastra um novo produto
                 break;
+
             case 2:
-                if (LoginUsuario() == 1) {
-                    while (1) { // Permanece no menu de produtos até sair
+                tipoUsuario = LoginUsuario();  // Realiza login e retorna o tipo de usuário
+
+                if (tipoUsuario == 0) {  // Funcionário
+                    while (1) {
                         TelaInicial();
                         scanf("%d", &opcaoLogado);
                         switch (opcaoLogado) {
@@ -24,18 +26,53 @@ int main() {
                                 CadastrarProduto();
                                 break;
                             case 2:
-                                ListarProduto();  // Lógica para listar produtos
+                                ListarProduto();
                                 break;
                             case 3:
-                                return 0; // Sai do programa
+                                printf("Acessando a balança...\n");
+                                break;
+                            case 4:
+                                return 0;  // Sai do sistema
                             default:
                                 printf("Opcao invalida!\n");
                         }
                     }
+                } else if (tipoUsuario == 1) {  // Chefe
+                    while (1) {
+                        TelaInicialChefe();
+                        scanf("%d", &opcaoLogado);
+                        switch (opcaoLogado) {
+                            case 1:
+                                CadastrarProduto();
+                                break;
+                            case 2:
+                                ListarProduto();
+                                break;
+                            case 3:
+                                printf("Acessando a balança...\n");
+                                break;
+                            case 4:
+                                printf("Editando funcionários...\n");
+                                // Chamar função de edição de funcionários aqui
+                                break;
+                            case 5:
+                                printf("Editando produto...\n");
+                                // Chamar função de edição de produtos aqui
+                                break;
+                            case 6:
+                                return 0;  // Sai do sistema
+                            default:
+                                printf("Opcao invalida!\n");
+                        }
+                    }
+                } else {
+                    printf("Login falhou!\n");
                 }
                 break;
+
             case 3:
-                return 0; // Sai do programa principal
+                return 0;  // Sai do programa principal
+
             default:
                 printf("Opcao invalida!\n");
         }
@@ -43,5 +80,3 @@ int main() {
 
     return 0;
 }
-
-
