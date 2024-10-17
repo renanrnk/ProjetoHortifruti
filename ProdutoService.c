@@ -92,4 +92,67 @@ void ListarProduto() {
     }
 
     fclose(arquivo);  // Fecha o arquivo após leitura
+    
+}
+
+void EditarProduto() {
+    FILE *arquivo = fopen("produtos.txt", "r");
+    FILE *temp = fopen("temp.txt", "w");  // Arquivo temporário para reescrever os produtos
+
+    if (arquivo == NULL || temp == NULL) {
+        printf("Erro ao abrir o arquivo!\n");
+        return;
+    }
+
+    int idProduto, encontrado = 0;
+    struct Produto p;
+
+    printf("Digite o ID do produto que deseja editar: ");
+    scanf("%d", &idProduto);
+
+    // Lê cada produto do arquivo
+    while (fscanf(arquivo, "%d,%[^,],%f,%d\n", &p.id, p.nome, &p.valor, &p.quantidade) != EOF) {
+        if (p.id == idProduto) {
+            encontrado = 1;
+            int opcao;
+            printf("Produto encontrado: %s (R$%.2f, %d unidades)\n", p.nome, p.valor, p.quantidade);
+            
+            printf("O que deseja editar?\n");
+            printf("1. Nome\n2. Preço\n3. Quantidade\nEscolha uma opção: ");
+            scanf("%d", &opcao);
+
+            switch (opcao) {
+                case 1:
+                    printf("Digite o novo nome: ");
+                    scanf("%s", p.nome);
+                    break;
+                case 2:
+                    printf("Digite o novo preco: ");
+                    scanf("%f", &p.valor);
+                    break;
+                case 3:
+                    printf("Digite a nova quantidade: ");
+                    scanf("%d", &p.quantidade);
+                    break;
+                default:
+                    printf("Opção invalida!\n");
+                    break;
+            }
+
+            printf("Produto atualizado!\n");
+        }
+        // Grava o produto (alterado ou não) no arquivo temporário
+        fprintf(temp, "%d,%s,%.2f,%d\n", p.id, p.nome, p.valor, p.quantidade);
+    }
+
+    fclose(arquivo);
+    fclose(temp);
+
+    if (!encontrado) {
+        printf("Produto com ID %d não encontrado.\n", idProduto);
+    } else {
+        // Substitui o arquivo original pelo temporário
+        remove("produtos.txt");
+        rename("temp.txt", "produtos.txt");
+    }
 }

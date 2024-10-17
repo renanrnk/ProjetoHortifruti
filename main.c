@@ -56,7 +56,7 @@ int main() {
                                 // Chamar função de edição de funcionários aqui
                                 break;
                             case 5:
-                                printf("Editando produto...\n");
+                                EditarProduto();
                                 // Chamar função de edição de produtos aqui
                                 break;
                             case 6:
