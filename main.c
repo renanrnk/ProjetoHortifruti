@@ -1,6 +1,6 @@
-#include "UsuarioService.c"
-#include "ProdutoService.c"
-#include "TelaService.c"
+#include "1.h"
+#include "2.h"
+#include "3.h"
 
 int main() {
     int opcao, opcaoLogado, tipoUsuario;
@@ -11,11 +11,13 @@ int main() {
 
         switch (opcao) {
             case 1:
-                CadastrarUsuario();  // Cadastra um novo produto
+                CadastrarUsuario();
+                system("pause");
+                system("cls");
                 break;
 
             case 2:
-                tipoUsuario = LoginUsuario();  // Realiza login e retorna o tipo de usuário
+                tipoUsuario = LoginUsuario();
 
                 if (tipoUsuario == 0) {  // Funcionário
                     while (1) {
@@ -24,12 +26,18 @@ int main() {
                         switch (opcaoLogado) {
                             case 1:
                                 CadastrarProduto();
+                                system("pause");
+                                system("cls");
                                 break;
                             case 2:
                                 ListarProduto();
+                                system("pause");
+                                system("cls");
                                 break;
                             case 3:
                                 Balanca();
+                                system("pause");
+                                system("cls");
                                 break;
                             case 4:
                                 return 0;  // Sai do sistema
@@ -44,19 +52,29 @@ int main() {
                         switch (opcaoLogado) {
                             case 1:
                                 CadastrarProduto();
+                                system("pause");
+                                system("cls");
                                 break;
                             case 2:
                                 ListarProduto();
+                                system("pause");
+                                system("cls");
                                 break;
                             case 3:
                                 Balanca();
+                                system("pause");
+                                system("cls");
                                 break;
                             case 4:
-                                EditarFuncionario();                               
+                                EditarFuncionario();
+                                system("pause");
+                                system("cls");
                                 break;
                             case 5:
+                                ListarProduto();
                                 EditarProduto();
-                                // Chamar função de edição de produtos aqui
+                                system("pause");
+                                system("cls");
                                 break;
                             case 6:
                                 return 0;  // Sai do sistema
