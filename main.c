@@ -29,7 +29,7 @@ int main() {
                                 ListarProduto();
                                 break;
                             case 3:
-                                printf("Acessando a balança...\n");
+                                Balanca();
                                 break;
                             case 4:
                                 return 0;  // Sai do sistema
@@ -49,11 +49,10 @@ int main() {
                                 ListarProduto();
                                 break;
                             case 3:
-                                printf("Acessando a balança...\n");
+                                Balanca();
                                 break;
                             case 4:
-                                printf("Editando funcionários...\n");
-                                // Chamar função de edição de funcionários aqui
+                                EditarFuncionario();                               
                                 break;
                             case 5:
                                 EditarProduto();

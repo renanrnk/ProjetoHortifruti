@@ -14,11 +14,12 @@ typedef struct {
 } Usuario;
 
 
-void MascararSenha(char *senha) {
+
+void MascararSenha(char *senha, const char *mensagem) {
     char ch;
     int i = 0;
 
-    printf("Digite sua senha: ");
+    printf("%s", mensagem); // Exibe a mensagem passada como parâmetro
     while ((ch = getch()) != '\r') { // Pressione Enter para finalizar
         if (ch == '\b') { // Se pressionar Backspace
             if (i > 0) {
@@ -68,12 +69,11 @@ void CadastrarUsuario() {
     }
 
     // Lê a senha do usuário
-    printf("Digite a senha do usuario: ");
-    MascararSenha(usuario.senha);
+    
+    MascararSenha(usuario.senha, "Digite a senha do usuario: ");
 
     // Lê a senha de administrador
-    printf("Digite a senha de administrador caso voce seja admin ou digite 0 para ignorar: ");
-    MascararSenha(senhaAdmin);
+    MascararSenha(senhaAdmin, "Digite a senha de administrador caso voce seja admin ou digite 0 para ignorar: ");
 
     if (strcmp(senhaAdmin, SENHA_ADMIN) == 0) {
         usuario.isAdmin = 1;  // Define como admin
@@ -96,10 +96,8 @@ void CadastrarUsuario() {
     printf("Usuario cadastrado com sucesso!\n");
 }
 
-
-
-
 int LoginUsuario() {
+
     char email[50], senha[50], emailLido[50], senhaLida[50], nomeLido[50];
     int tipoUsuario;
     FILE *arquivo = fopen("usuarios.txt", "r");
@@ -111,8 +109,8 @@ int LoginUsuario() {
 
     printf("Digite seu email: ");
     scanf("%s", email);
-    printf("Digite sua senha: ");
-    scanf("%s", senha);
+    
+    MascararSenha(senha, "Digite sua senha: ");
 
     while (fscanf(arquivo, "%s %s %s %d", nomeLido, emailLido, senhaLida, &tipoUsuario) != EOF) {
         if (strcmp(email, emailLido) == 0 && strcmp(senha, senhaLida) == 0) {
@@ -125,4 +123,66 @@ int LoginUsuario() {
     fclose(arquivo);
     printf("Email ou senha incorretos!\n");
     return -1;
+}
+
+void EditarFuncionario() {
+    Usuario usuario;
+    FILE *arquivo;
+    char emailExistente[50], senhaExistente[50], nomeExistente[50];
+    int isAdminExistente;
+    char emailParaExcluir[50];
+    int encontrado = 0;
+
+    // Abre o arquivo para leitura
+    arquivo = fopen("usuarios.txt", "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo!\n");
+        return;
+    }
+
+    // Lê os dados do arquivo
+    printf("Lista de e-mails dos funcionários:\n");
+    while (fscanf(arquivo, "%s %s %s %d", nomeExistente, emailExistente, senhaExistente, &isAdminExistente) != EOF) {
+        printf("%s\n", emailExistente);
+    }
+    fclose(arquivo);
+
+    // Pergunta se deseja excluir algum funcionário
+    printf("Digite o e-mail do funcionário que deseja excluir ou pressione Enter para cancelar: ");
+    scanf("%s", emailParaExcluir);
+
+    if (strlen(emailParaExcluir) == 0) {
+        printf("Operação cancelada.\n");
+        return;
+    }
+
+    // Abre o arquivo para leitura e um arquivo temporário para escrita
+    arquivo = fopen("usuarios.txt", "r");
+    FILE *temp = fopen("temp.txt", "w");
+    if (arquivo == NULL || temp == NULL) {
+        printf("Erro ao abrir o arquivo!\n");
+        return;
+    }
+
+    // Copia os dados, exceto o funcionário a ser excluído, para o arquivo temporário
+    while (fscanf(arquivo, "%s %s %s %d", nomeExistente, emailExistente, senhaExistente, &isAdminExistente) != EOF) {
+        if (strcmp(emailExistente, emailParaExcluir) != 0) {
+            fprintf(temp, "%s %s %s %d\n", nomeExistente, emailExistente, senhaExistente, isAdminExistente);
+        } else {
+            encontrado = 1;
+        }
+    }
+
+    fclose(arquivo);
+    fclose(temp);
+
+    // Substitui o arquivo original pelo arquivo temporário
+    remove("usuarios.txt");
+    rename("temp.txt", "usuarios.txt");
+
+    if (encontrado) {
+        printf("Funcionario excluído com sucesso!\n");
+    } else {
+        printf("Funcionario não encontrado!\n");
+    }
 }
