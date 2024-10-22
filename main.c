@@ -1,8 +1,10 @@
-#include "1.h"
-#include "2.h"
-#include "3.h"
+#include "ProdutoService.c"
+#include "TelaService.c"
+#include "UsuarioService.c"
+#include <windows.h>
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
     int opcao, opcaoLogado, tipoUsuario;
 
     while (1) {
