@@ -11,56 +11,75 @@ struct Produto{ //Estrutura para variaveis que formam produtos
 };
 
 // Função para verificar se o ID já existe no arquivo
-bool idJaExiste(int id) {
-    FILE *arquivo = fopen("produtos.txt", "r");  // Abre o arquivo para leitura
+int idJaExiste(int id) {
+    FILE *arquivo = fopen("produtos.txt", "r");
     if (arquivo == NULL) {
-        return false;  // Arquivo não existe ou erro ao abrir, então o ID é novo
+        return 0; // Arquivo não existe, ID não existe
     }
 
-    int idExistente;
-    while (fscanf(arquivo, "%d,%*[^,],%*f,%*d\n", &idExistente) != EOF) {
-        if (id == idExistente) {
+    struct Produto p;
+    while (fscanf(arquivo, "%d,%49[^,],%f,%d", &p.id, p.nome, &p.valor, &p.quantidade) != EOF) {
+        if (p.id == id) {
             fclose(arquivo);
-            return true;  // O ID já existe no arquivo
+            return 1; // ID encontrado
         }
     }
 
     fclose(arquivo);
-    return false;  // ID não encontrado, é novo
+    return 0; // ID não encontrado
 }
 
-//Função para gerar numeros aleatorios para os identificadores de produto.
-int gerarnum(){
+// Função para verificar se o nome já existe
+int nomeJaExiste(char *nome) {
+    FILE *arquivo = fopen("produtos.txt", "r");
+    if (arquivo == NULL) {
+        return 0; // Arquivo não existe, nome não existe
+    }
 
+    struct Produto p;
+    while (fscanf(arquivo, "%d,%49[^,],%f,%d", &p.id, p.nome, &p.valor, &p.quantidade) != EOF) {
+        if (strcmp(p.nome, nome) == 0) {
+            fclose(arquivo);
+            return 1; // Nome encontrado
+        }
+    }
+
+    fclose(arquivo);
+    return 0; // Nome não encontrado
+}
+
+// Função para gerar um número aleatório único para o ID
+int gerarnum() {
     int id;
-    
-    do{
-        return (rand() % 100 + 1); //Gera um numero aleatorio entre 1 e 100
-    } while(idJaExiste(id));// Verifica se o ID ja existe
-    
+    do {
+        id = rand() % 100 + 1; // Gera um número aleatório entre 1 e 100
+    } while (idJaExiste(id)); // Verifica se o ID já existe
     return id;
 }
 
+// Função para cadastrar o produto
 void CadastrarProduto() {
-    FILE *arquivo = fopen("produtos.txt", "a");  // Abre o arquivo no modo de adição
-
+    FILE *arquivo = fopen("produtos.txt", "a"); // Abre o arquivo no modo de adição
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
     struct Produto p;
-
     // Adicionar as informações do produto
     printf("Digite o nome do produto: ");
     scanf("%s", p.nome);
 
-    p.id = gerarnum();
-    printf("Codigo do produto = %d\n", p.id);
+    if (nomeJaExiste(p.nome)) {
+        printf("Erro: Produto com este nome já existe!\n");
+        fclose(arquivo);
+        return;
+    }
 
+    p.id = gerarnum();
+    printf("Código do produto = %d\n", p.id);
     printf("Digite o valor do produto: ");
     scanf("%f", &p.valor);
-
     printf("Digite a quantidade dos produtos: ");
     scanf("%d", &p.quantidade);
 
@@ -68,7 +87,7 @@ void CadastrarProduto() {
     fprintf(arquivo, "%d,%s,%.2f,%d\n", p.id, p.nome, p.valor, p.quantidade);
     printf("Produto Cadastrado!\n");
 
-    fclose(arquivo);  // Fecha o arquivo corretamente
+    fclose(arquivo); // Fecha o arquivo corretamente
 }
 
 void ListarProduto() {
