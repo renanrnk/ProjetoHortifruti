@@ -2,29 +2,37 @@
 #include "TelaService.c"
 #include "UsuarioService.c"
 #include <windows.h>
+#include <stdio.h>
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     int opcao, opcaoLogado, tipoUsuario;
-
+    
     while (1) {
         TelaLogin();
-        scanf("%d", &opcao);
-
+        if (scanf("%d", &opcao) != 1) {
+            // Limpa o buffer do stdin em caso de entrada inválida
+            while (getchar() != '\n');
+            printf("Opcao invalida! Por favor, insira um numero.\n");
+            continue;
+        }
         switch (opcao) {
             case 1:
                 CadastrarUsuario();
                 system("pause");
                 system("cls");
                 break;
-
             case 2:
                 tipoUsuario = LoginUsuario();
-
                 if (tipoUsuario == 0) {  // Funcionário
                     while (1) {
                         TelaInicial();
-                        scanf("%d", &opcaoLogado);
+                        if (scanf("%d", &opcaoLogado) != 1) {
+                            // Limpa o buffer do stdin em caso de entrada inválida
+                            while (getchar() != '\n');
+                            printf("Opcao invalida! Por favor, insira um numero.\n");
+                            continue;
+                        }
                         switch (opcaoLogado) {
                             case 1:
                                 CadastrarProduto();
@@ -50,7 +58,12 @@ int main() {
                 } else if (tipoUsuario == 1) {  // Chefe
                     while (1) {
                         TelaInicialChefe();
-                        scanf("%d", &opcaoLogado);
+                        if (scanf("%d", &opcaoLogado) != 1) {
+                            // Limpa o buffer do stdin em caso de entrada inválida
+                            while (getchar() != '\n');
+                            printf("Opcao invalida! Por favor, insira um numero.\n");
+                            continue;
+                        }
                         switch (opcaoLogado) {
                             case 1:
                                 CadastrarProduto();
@@ -73,7 +86,6 @@ int main() {
                                 system("cls");
                                 break;
                             case 5:
-                                ListarProduto();
                                 EditarProduto();
                                 system("pause");
                                 system("cls");
@@ -88,14 +100,11 @@ int main() {
                     printf("Login falhou!\n");
                 }
                 break;
-
             case 3:
                 return 0;  // Sai do programa principal
-
             default:
                 printf("Opcao invalida!\n");
         }
     }
-
     return 0;
 }
