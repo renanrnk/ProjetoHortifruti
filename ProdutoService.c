@@ -194,7 +194,6 @@ void MostrarProdutos() {
     fclose(arquivo);
 }
 
-
 void Balanca() {
     struct Produto produto;
     FILE *arquivo;
