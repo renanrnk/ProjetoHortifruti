@@ -3,6 +3,7 @@
 #include "UsuarioService.c"
 #include <windows.h>
 #include <stdio.h>
+#include <string.h>
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);

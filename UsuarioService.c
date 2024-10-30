@@ -119,16 +119,20 @@ void EditarFuncionario() {
     fclose(arquivo);
 
     // Pergunta se deseja ativar ou inativar algum funcionário
-    printf("Digite o e-mail do funcionário que deseja alterar ou pressione Enter para cancelar: ");
+    printf("Digite o e-mail do funcionário que deseja alterar ou digite 0 para cancelar: ");
     scanf("%s", emailParaAlterar);
 
-    if (strlen(emailParaAlterar) == 0) {
+    // Verifica se o usuário digitou "0" para cancelar
+    if (strcmp(emailParaAlterar, "0") == 0) {
         printf("Operação cancelada.\n");
         return;
     }
 
     printf("Deseja (A)tivar ou (I)nativar o funcionário? ");
     scanf(" %c", &opcao);
+
+    // Limpa o buffer após o scanf
+    while (getchar() != '\n'); // Limpa qualquer entrada restante
 
     // Abre o arquivo para leitura e um arquivo temporário para escrita
     arquivo = fopen("usuarios.txt", "r");
@@ -143,10 +147,10 @@ void EditarFuncionario() {
         if (strcmp(emailExistente, emailParaAlterar) == 0) {
             if (opcao == 'I' || opcao == 'i') {
                 isActiveExistente = 0; // Inativa o funcionário
-                printf("Funcionario inativado com sucesso!\n");
+                printf("Funcionário inativado com sucesso!\n");
             } else if (opcao == 'A' || opcao == 'a') {
                 isActiveExistente = 1; // Ativa o funcionário
-                printf("Funcionario ativado com sucesso!\n");
+                printf("Funcionário ativado com sucesso!\n");
             }
             encontrado = 1;
         }
@@ -161,13 +165,13 @@ void EditarFuncionario() {
     rename("temp.txt", "usuarios.txt");
 
     if (!encontrado) {
-        printf("Funcionario não encontrado!\n");
+        printf("Funcionário não encontrado!\n");
     }
 }
 
 int LoginUsuario() {
     char email[50], senha[50], emailLido[50], senhaLida[50], nomeLido[50];
-    int tipoUsuario, isActive;
+    int tipoUsuario;
     FILE *arquivo = fopen("usuarios.txt", "r");
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo de usuários!\n");
@@ -178,13 +182,8 @@ int LoginUsuario() {
     scanf("%s", email);
     MascararSenha(senha, "Digite sua senha: ");
 
-    while (fscanf(arquivo, "%s %s %s %d %d", nomeLido, emailLido, senhaLida, &tipoUsuario, &isActive) != EOF) {
+    while (fscanf(arquivo, "%s %s %s %d", nomeLido, emailLido, senhaLida, &tipoUsuario) != EOF) {
         if (strcmp(email, emailLido) == 0 && strcmp(senha, senhaLida) == 0) {
-            if (isActive == 0) {
-                printf("Usuário inativo. Não pode fazer login.\n");
-                fclose(arquivo);
-                return -1;
-            }
             printf("Bem-vindo, %s!\n", nomeLido);  // Exibe o nome do usuário
             fclose(arquivo);
             return tipoUsuario;
@@ -195,3 +194,4 @@ int LoginUsuario() {
     printf("Email ou senha incorretos!\n");
     return -1;
 }
+

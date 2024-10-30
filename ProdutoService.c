@@ -3,14 +3,13 @@
 #include <time.h>
 #include <stdbool.h>
 
-struct Produto{ //Estrutura para variaveis que formam produtos
+struct Produto {
     int id;
     char nome[50];
     float valor;
-    int quantidade;
+    float quantidade;
 };
 
-// Função para verificar se o ID já existe no arquivo
 int idJaExiste(int id) {
     FILE *arquivo = fopen("produtos.txt", "r");
     if (arquivo == NULL) {
@@ -18,7 +17,8 @@ int idJaExiste(int id) {
     }
 
     struct Produto p;
-    while (fscanf(arquivo, "%d,%49[^,],%f,%d", &p.id, p.nome, &p.valor, &p.quantidade) != EOF) {
+    // Verifica a leitura de todos os campos da estrutura Produto
+    while (fscanf(arquivo, "%d,%49[^,],%f,%f\n", &p.id, p.nome, &p.valor, &p.quantidade) == 4) {
         if (p.id == id) {
             fclose(arquivo);
             return 1; // ID encontrado
@@ -29,26 +29,24 @@ int idJaExiste(int id) {
     return 0; // ID não encontrado
 }
 
-// Função para verificar se o nome já existe
-int nomeJaExiste(char *nome) {
+int nomeJaExiste(const char *nome) {
     FILE *arquivo = fopen("produtos.txt", "r");
     if (arquivo == NULL) {
-        return 0; // Arquivo não existe, nome não existe
+        return 0; // Se não conseguir abrir o arquivo, consideramos que o nome não existe
     }
-
+    
     struct Produto p;
-    while (fscanf(arquivo, "%d,%49[^,],%f,%d", &p.id, p.nome, &p.valor, &p.quantidade) != EOF) {
+    while (fscanf(arquivo, "%d,%49[^,],%f,%f", &p.id, p.nome, &p.valor, &p.quantidade) == 4) {
         if (strcmp(p.nome, nome) == 0) {
             fclose(arquivo);
-            return 1; // Nome encontrado
+            return 1; // Nome já existe
         }
     }
 
     fclose(arquivo);
-    return 0; // Nome não encontrado
+    return 0; // Nome não existe
 }
 
-// Função para gerar um número aleatório único para o ID
 int gerarnum() {
     int id;
     do {
@@ -57,7 +55,6 @@ int gerarnum() {
     return id;
 }
 
-// Função para cadastrar o produto
 void CadastrarProduto() {
     FILE *arquivo = fopen("produtos.txt", "a"); // Abre o arquivo no modo de adição
     if (arquivo == NULL) {
@@ -66,14 +63,27 @@ void CadastrarProduto() {
     }
 
     struct Produto p;
-    // Adicionar as informações do produto
-    printf("Digite o nome do produto: ");
-    scanf("%s", p.nome);
 
-    if (nomeJaExiste(p.nome)) {
-        printf("Erro: Produto com este nome já existe!\n");
-        fclose(arquivo);
-        return;
+    // Adicionar as informações do produto
+    while (1) {
+        printf("Digite o nome do produto: ");
+        
+        // Limpa o buffer de entrada
+        while (getchar() != '\n'); // Limpa o buffer
+        fgets(p.nome, sizeof(p.nome), stdin); // Usa fgets para ler o nome
+
+        // Remove o newline no final se existir
+        size_t len = strlen(p.nome);
+        if (len > 0 && p.nome[len - 1] == '\n') {
+            p.nome[len - 1] = '\0';
+        }
+
+        // Verifica se o nome já existe
+        if (nomeJaExiste(p.nome)) {
+            printf("Erro: Produto com este nome já existe! Tente novamente.\n");
+        } else {
+            break; // Nome válido, sai do loop
+        }
     }
 
     p.id = gerarnum();
@@ -81,10 +91,11 @@ void CadastrarProduto() {
     printf("Digite o valor do produto: ");
     scanf("%f", &p.valor);
     printf("Digite a quantidade dos produtos: ");
-    scanf("%d", &p.quantidade);
+    scanf("%f", &p.quantidade); // Mantido como float
 
     // Grava os dados no arquivo e adiciona uma nova linha no final
-    fprintf(arquivo, "%d,%s,%.2f,%d\n", p.id, p.nome, p.valor, p.quantidade);
+    fprintf(arquivo, "%d,%s,%.2f,%.2f\n", p.id, p.nome, p.valor, p.quantidade);
+
     printf("Produto Cadastrado!\n");
 
     fclose(arquivo); // Fecha o arquivo corretamente
@@ -102,16 +113,15 @@ void ListarProduto() {
     printf("\n--- LISTA DE PRODUTOS ---\n");
 
     // Lê cada linha do arquivo e exibe as informações do produto
-    while (fscanf(arquivo, "%d,%49[^,],%f,%d\n", &p.id, p.nome, &p.valor, &p.quantidade) == 4) {
+    while (fscanf(arquivo, "%d,%49[^,],%f,%f\n", &p.id, p.nome, &p.valor, &p.quantidade) == 4) {
         printf("ID: %d\n", p.id);
         printf("Nome: %s\n", p.nome);
         printf("Valor: R$ %.2f\n", p.valor);
-        printf("Quantidade: %d\n", p.quantidade);
+        printf("Quantidade: %.2f\n", p.quantidade); // Mantido como float
         printf("------------------------\n");
     }
 
     fclose(arquivo);  // Fecha o arquivo após leitura
-    
 }
 
 void EditarProduto() {
@@ -123,6 +133,8 @@ void EditarProduto() {
         return;
     }
 
+    MostrarProdutos(); // Exibe a lista de produtos
+
     int idProduto, encontrado = 0;
     struct Produto p;
 
@@ -130,11 +142,11 @@ void EditarProduto() {
     scanf("%d", &idProduto);
 
     // Lê cada produto do arquivo
-    while (fscanf(arquivo, "%d,%[^,],%f,%d\n", &p.id, p.nome, &p.valor, &p.quantidade) != EOF) {
+    while (fscanf(arquivo, "%d,%49[^,],%f,%f\n", &p.id, p.nome, &p.valor, &p.quantidade) == 4) {
         if (p.id == idProduto) {
             encontrado = 1;
             int opcao;
-            printf("Produto encontrado: %s (R$%.2f, %d unidades)\n", p.nome, p.valor, p.quantidade);
+            printf("Produto encontrado: %s (R$%.2f, %.2f unidades)\n", p.nome, p.valor, p.quantidade);
             
             printf("O que deseja editar?\n");
             printf("1. Nome\n2. Preço\n3. Quantidade\nEscolha uma opção: ");
@@ -146,22 +158,22 @@ void EditarProduto() {
                     scanf("%s", p.nome);
                     break;
                 case 2:
-                    printf("Digite o novo preco: ");
+                    printf("Digite o novo preço: ");
                     scanf("%f", &p.valor);
                     break;
                 case 3:
                     printf("Digite a nova quantidade: ");
-                    scanf("%d", &p.quantidade);
+                    scanf("%f", &p.quantidade); // Mantenha como float
                     break;
                 default:
-                    printf("Opção invalida!\n");
+                    printf("Opção inválida!\n");
                     break;
             }
 
             printf("Produto atualizado!\n");
         }
         // Grava o produto (alterado ou não) no arquivo temporário
-        fprintf(temp, "%d,%s,%.2f,%d\n", p.id, p.nome, p.valor, p.quantidade);
+        fprintf(temp, "%d,%s,%.2f,%.2f\n", p.id, p.nome, p.valor, p.quantidade);
     }
 
     fclose(arquivo);
@@ -187,8 +199,9 @@ void MostrarProdutos() {
     }
 
     printf("Lista de Produtos:\n");
-    while (fscanf(arquivo, "%d,%49[^,],%f,%d", &produto.id, produto.nome, &produto.valor, &produto.quantidade) != EOF) {
-        printf("ID: %d, Nome: %s, Valor: R$%.2f, Quantidade: %d\n", produto.id, produto.nome, produto.valor, produto.quantidade);
+    // Alterado para aceitar a leitura de quantidade como float
+    while (fscanf(arquivo, "%d,%49[^,],%f,%f", &produto.id, produto.nome, &produto.valor, &produto.quantidade) != EOF) {
+        printf("ID: %d, Nome: %s, Valor: R$%.2f, Quantidade: %.2f\n", produto.id, produto.nome, produto.valor, produto.quantidade);
     }
 
     fclose(arquivo);
@@ -198,15 +211,18 @@ void Balanca() {
     struct Produto produto;
     FILE *arquivo;
     FILE *temp;
-    int quantidadeDesejada;
+    float quantidadeDesejada; // Para aceitar quantidade decimal
     int idProduto, encontrado = 0;
     float total = 0.0;
     char continuar;
 
-    // Mostrar lista de produtos
-    MostrarProdutos();
+    // Buffer para o cupom de venda
+    char cupom[1000] = "----- Cupom de Venda -----\n"; 
+    char linha[100]; // Buffer para cada linha do cupom
 
     do {
+        MostrarProdutos(); // Mostra a lista de produtos
+
         // Abre o arquivo para leitura
         arquivo = fopen("produtos.txt", "r");
         if (arquivo == NULL) {
@@ -226,15 +242,20 @@ void Balanca() {
         printf("Digite o ID do produto que deseja comprar: ");
         scanf("%d", &idProduto);
         printf("Digite a quantidade desejada: ");
-        scanf("%d", &quantidadeDesejada);
+        scanf("%f", &quantidadeDesejada);
 
         // Lê os dados do arquivo e calcula o valor total
-        while (fscanf(arquivo, "%d,%49[^,],%f,%d", &produto.id, produto.nome, &produto.valor, &produto.quantidade) != EOF) {
+        while (fscanf(arquivo, "%d,%49[^,],%f,%f", &produto.id, produto.nome, &produto.valor, &produto.quantidade) != EOF) {
             if (produto.id == idProduto) {
                 encontrado = 1;
                 if (produto.quantidade >= quantidadeDesejada) {
-                    total += quantidadeDesejada * produto.valor;
+                    float valorItem = quantidadeDesejada * produto.valor;
+                    total += valorItem;
                     produto.quantidade -= quantidadeDesejada;
+
+                    // Adiciona a linha do produto ao cupom
+                    sprintf(linha, "Produto: %s | Quantidade: %.2f | Preço: R$%.2f\n", produto.nome, quantidadeDesejada, valorItem);
+                    strcat(cupom, linha);
                 } else {
                     printf("Quantidade em estoque insuficiente para %s!\n", produto.nome);
                     fclose(arquivo);
@@ -243,23 +264,29 @@ void Balanca() {
                     return;
                 }
             }
-            fprintf(temp, "%d,%s,%.2f,%d\n", produto.id, produto.nome, produto.valor, produto.quantidade);
+            fprintf(temp, "%d,%s,%.2f,%.2f\n", produto.id, produto.nome, produto.valor, produto.quantidade);
         }
 
         fclose(arquivo);
         fclose(temp);
 
-        // Substitui o arquivo original pelo arquivo temporário
+        // Substitui o arquivo original pelo temporário
         remove("produtos.txt");
         rename("temp.txt", "produtos.txt");
 
         printf("Deseja comprar mais algum produto? (s/n): ");
         scanf(" %c", &continuar);
+
     } while (continuar == 's');
 
-    printf("Total a pagar: R$%.2f\n", total);
+    if (encontrado) {
+        // Adiciona o total ao cupom e exibe o cupom de venda
+        sprintf(linha, "Total a pagar: R$%.2f\n", total);
+        strcat(cupom, linha);
+        strcat(cupom, "--------------------------\n");
 
-    if (!encontrado) {
+        printf("%s", cupom);
+    } else {
         printf("Produto(s) não encontrado(s)!\n");
     }
 }
