@@ -1,1 +1,2 @@
-Renan renan@gmail.com renan123 1
+Renan renan@gmail.com renan123 1 36
+Pedro pedro@gmail.com pedro123 0

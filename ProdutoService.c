@@ -47,12 +47,67 @@ int nomeJaExiste(const char *nome) {
     return 0; // Nome não existe
 }
 
+float lerQuantidade() {
+    char input[20];
+    float quantidade;
+    int valido;
+
+    do {
+        printf("Digite a quantidade desejada: ");
+        fgets(input, sizeof(input), stdin);
+
+        // Remove o newline no final, se existir
+        size_t len = strlen(input);
+        if (len > 0 && input[len - 1] == '\n') {
+            input[len - 1] = '\0';
+        }
+
+        // Tenta converter a entrada para float
+        valido = sscanf(input, "%f", &quantidade) == 1;
+
+        if (!valido || quantidade <= 0) {
+            printf("Erro: Digite uma quantidade válida.\n");
+        }
+    } while (!valido || quantidade <= 0);
+
+    return quantidade;
+}
+
 int gerarnum() {
     int id;
     do {
         id = rand() % 100 + 1; // Gera um número aleatório entre 1 e 100
     } while (idJaExiste(id)); // Verifica se o ID já existe
     return id;
+}
+
+int validarNome(char *nome) {
+    for (int i = 0; nome[i] != '\0'; i++) {
+        if (!isalpha(nome[i]) && nome[i] != ' ') {
+            return 0; // Retorna falso se encontrar um caractere que não é letra ou espaço
+        }
+    }
+    return 1; // Retorna verdadeiro se todos os caracteres forem letras ou espaços
+}
+
+float lerNumero(char *mensagem) {
+    float numero;
+    char buffer[50];
+    int valido;
+
+    do {
+        printf("%s", mensagem);
+        fgets(buffer, sizeof(buffer), stdin);
+
+        // Tenta converter a entrada para float
+        valido = sscanf(buffer, "%f", &numero) == 1;
+
+        if (!valido) {
+            printf("Erro: Digite apenas números.\n");
+        }
+    } while (!valido);
+
+    return numero;
 }
 
 void CadastrarProduto() {
@@ -66,21 +121,23 @@ void CadastrarProduto() {
 
     // Adicionar as informações do produto
     while (1) {
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF); // Limpa o buffer de entrada
+
         printf("Digite o nome do produto: ");
-        
-        // Limpa o buffer de entrada
-        while (getchar() != '\n'); // Limpa o buffer
         fgets(p.nome, sizeof(p.nome), stdin); // Usa fgets para ler o nome
 
-        // Remove o newline no final se existir
+        // Remove o newline no final, se existir
         size_t len = strlen(p.nome);
         if (len > 0 && p.nome[len - 1] == '\n') {
             p.nome[len - 1] = '\0';
         }
 
-        // Verifica se o nome já existe
-        if (nomeJaExiste(p.nome)) {
-            printf("Erro: Produto com este nome já existe! Tente novamente.\n");
+        // Verifica se o nome contém apenas letras e se já existe
+        if (!validarNome(p.nome)) {
+            printf("Erro: O nome deve conter apenas letras. Aperte ENTER e digite novamente.\n");
+        } else if (nomeJaExiste(p.nome)) {
+            printf("Erro: Produto com este nome já existe! Aperte ENTER e digite novamente.\n");
         } else {
             break; // Nome válido, sai do loop
         }
@@ -88,10 +145,12 @@ void CadastrarProduto() {
 
     p.id = gerarnum();
     printf("Código do produto = %d\n", p.id);
-    printf("Digite o valor do produto: ");
-    scanf("%f", &p.valor);
-    printf("Digite a quantidade dos produtos: ");
-    scanf("%f", &p.quantidade); // Mantido como float
+
+    // Lê e valida o valor do produto
+    p.valor = lerNumero("Digite o valor do produto: ");
+
+    // Lê e valida a quantidade do produto
+    p.quantidade = lerNumero("Digite a quantidade dos produtos: ");
 
     // Grava os dados no arquivo e adiciona uma nova linha no final
     fprintf(arquivo, "%d,%s,%.2f,%.2f\n", p.id, p.nome, p.valor, p.quantidade);
@@ -211,7 +270,7 @@ void Balanca() {
     struct Produto produto;
     FILE *arquivo;
     FILE *temp;
-    float quantidadeDesejada; // Para aceitar quantidade decimal
+    float quantidadeDesejada;
     int idProduto, encontrado = 0;
     float total = 0.0;
     char continuar;
@@ -222,6 +281,30 @@ void Balanca() {
 
     do {
         MostrarProdutos(); // Mostra a lista de produtos
+
+        // Solicita o ID do produto e verifica se ele existe no arquivo
+        while (1) {
+            printf("Digite o ID do produto que deseja comprar: ");
+            scanf("%d", &idProduto);
+            while (getchar() != '\n'); // Limpa o buffer de entrada
+
+            if (idJaExiste(idProduto)) {
+                break; // ID válido, sai do loop
+            } else {
+                printf("Erro: ID do produto não encontrado. Tente novamente.\n");
+            }
+        }
+
+        // Solicita e valida a quantidade desejada
+        while (1) {
+            printf("Digite a quantidade desejada: ");
+            if (scanf("%f", &quantidadeDesejada) == 1 && quantidadeDesejada > 0) {
+                break; // Quantidade válida, sai do loop
+            } else {
+                printf("Erro: Digite uma quantidade válida.\n");
+                while (getchar() != '\n'); // Limpa o buffer de entrada
+            }
+        }
 
         // Abre o arquivo para leitura
         arquivo = fopen("produtos.txt", "r");
@@ -238,14 +321,8 @@ void Balanca() {
             return;
         }
 
-        // Solicita o ID do produto e a quantidade desejada
-        printf("Digite o ID do produto que deseja comprar: ");
-        scanf("%d", &idProduto);
-        printf("Digite a quantidade desejada: ");
-        scanf("%f", &quantidadeDesejada);
-
-        // Lê os dados do arquivo e calcula o valor total
-        while (fscanf(arquivo, "%d,%49[^,],%f,%f", &produto.id, produto.nome, &produto.valor, &produto.quantidade) != EOF) {
+        // Lê os dados do arquivo e processa a compra
+        while (fscanf(arquivo, "%d,%49[^,],%f,%f\n", &produto.id, produto.nome, &produto.valor, &produto.quantidade) == 4) {
             if (produto.id == idProduto) {
                 encontrado = 1;
                 if (produto.quantidade >= quantidadeDesejada) {
@@ -276,6 +353,7 @@ void Balanca() {
 
         printf("Deseja comprar mais algum produto? (s/n): ");
         scanf(" %c", &continuar);
+        while (getchar() != '\n'); // Limpa o buffer de entrada
 
     } while (continuar == 's');
 

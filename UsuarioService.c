@@ -14,7 +14,6 @@ typedef struct {
 } Usuario;
 
 
-
 void MascararSenha(char *senha, const char *mensagem) {
     char ch;
     int i = 0;
@@ -100,9 +99,8 @@ void EditarFuncionario() {
     FILE *arquivo;
     char emailExistente[50], senhaExistente[50], nomeExistente[50];
     int isAdminExistente, isActiveExistente;
-    char emailParaAlterar[50];
+    char emailParaRemover[50];
     int encontrado = 0;
-    char opcao; // Variável para armazenar a escolha de ativar ou inativar
 
     // Abre o arquivo para leitura
     arquivo = fopen("usuarios.txt", "r");
@@ -111,30 +109,23 @@ void EditarFuncionario() {
         return;
     }
 
-    // Lê os dados do arquivo
+    // Exibe a lista de e-mails dos funcionários
     printf("Lista de e-mails dos funcionários:\n");
     while (fscanf(arquivo, "%s %s %s %d %d", nomeExistente, emailExistente, senhaExistente, &isAdminExistente, &isActiveExistente) != EOF) {
         printf("%s\n", emailExistente);
     }
     fclose(arquivo);
 
-    // Pergunta se deseja ativar ou inativar algum funcionário
-    printf("Digite o e-mail do funcionário que deseja alterar ou digite 0 para cancelar: ");
-    scanf("%s", emailParaAlterar);
+    // Solicita o e-mail do funcionário a ser removido
+    printf("Digite o e-mail do funcionário que deseja remover ou digite 0 para cancelar: ");
+    scanf("%s", emailParaRemover);
 
-    // Verifica se o usuário digitou "0" para cancelar
-    if (strcmp(emailParaAlterar, "0") == 0) {
+    if (strcmp(emailParaRemover, "0") == 0) {
         printf("Operação cancelada.\n");
         return;
     }
 
-    printf("Deseja (A)tivar ou (I)nativar o funcionário? ");
-    scanf(" %c", &opcao);
-
-    // Limpa o buffer após o scanf
-    while (getchar() != '\n'); // Limpa qualquer entrada restante
-
-    // Abre o arquivo para leitura e um arquivo temporário para escrita
+    // Abre o arquivo novamente para leitura e um temporário para escrita
     arquivo = fopen("usuarios.txt", "r");
     FILE *temp = fopen("temp.txt", "w");
     if (arquivo == NULL || temp == NULL) {
@@ -142,17 +133,12 @@ void EditarFuncionario() {
         return;
     }
 
-    // Copia os dados e altera o status do funcionário desejado
+    // Lê cada linha e copia para o arquivo temporário, exceto o funcionário a ser removido
     while (fscanf(arquivo, "%s %s %s %d %d", nomeExistente, emailExistente, senhaExistente, &isAdminExistente, &isActiveExistente) != EOF) {
-        if (strcmp(emailExistente, emailParaAlterar) == 0) {
-            if (opcao == 'I' || opcao == 'i') {
-                isActiveExistente = 0; // Inativa o funcionário
-                printf("Funcionário inativado com sucesso!\n");
-            } else if (opcao == 'A' || opcao == 'a') {
-                isActiveExistente = 1; // Ativa o funcionário
-                printf("Funcionário ativado com sucesso!\n");
-            }
+        if (strcmp(emailExistente, emailParaRemover) == 0) {
             encontrado = 1;
+            printf("Funcionário removido com sucesso!\n");
+            continue; // Pula a gravação deste funcionário
         }
         fprintf(temp, "%s %s %s %d %d\n", nomeExistente, emailExistente, senhaExistente, isAdminExistente, isActiveExistente);
     }
@@ -160,7 +146,7 @@ void EditarFuncionario() {
     fclose(arquivo);
     fclose(temp);
 
-    // Substitui o arquivo original pelo arquivo temporário
+    // Substitui o arquivo original pelo temporário
     remove("usuarios.txt");
     rename("temp.txt", "usuarios.txt");
 

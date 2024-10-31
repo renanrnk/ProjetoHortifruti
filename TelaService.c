@@ -25,7 +25,7 @@ void TelaInicial() {
 
 void TelaInicialChefe() {
     printf("+----------------------------+\n");
-    printf("|        MENU GERENTE         |\n");
+    printf("|        MENU GERENTE        |\n");
     printf("+----------------------------+\n");
 
     printf("| 1. Cadastrar Produto       |\n");
